@@ -14,6 +14,7 @@
           transition="scale-transition"
           width="40"
         />
+        <v-toolbar-title>Speckle App</v-toolbar-title>
       </div>
     </v-app-bar>
 
