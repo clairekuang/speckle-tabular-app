@@ -19,9 +19,16 @@
       </v-text-field>
     </v-row>
 
+    <v-treeview
+      selectable
+      return-object
+      v-model="filteredHeaders"
+      :items="unflattenedHeaders"
+    ></v-treeview>
+
     <v-data-table
       v-if="URL && URL.length !== 0"
-      :headers="headers"
+      :headers="showHeaders"
       :items="flattenedObjects"
       :hide-default-footer="true"
       disable-sort
@@ -39,7 +46,9 @@
     data: () => ({
       URL: 'https://speckle.xyz/streams/5dfbeb49c9/commits/22bb89b5b8',
       flattenedObjects: [],
-      headers: []
+      headers: [],
+      unflattenedHeaders: [],
+      filteredHeaders:[]
     }),
     methods: {
       async getObjects() {
@@ -85,7 +94,6 @@
 
         let objectsRes = await objectsRawRes.json()
         let children = objectsRes.data.stream.object.children.objects
-        console.log(children)
 
         // flatten these objects to generate table rows. 
         // This will still yield key value pairs in flattened json
@@ -96,6 +104,32 @@
         var uniqueHeaders = new Set()
         this.flattenedObjects.forEach(o => Object.keys(o).forEach(o => uniqueHeaders.add(o)))
         uniqueHeaders.forEach(o => this.headers.push({text: o, value: o, sortable:false}))
+
+        // unflatten the headers to generate tree
+        var headerTree = this.makeTreeFromHeaders(uniqueHeaders)
+        this.unflattenedHeaders = headerTree
+      },
+
+      makeTreeFromHeaders(uniqueHeaders) {
+        let tree = [{ id: 0, name: 'all fields', fullname: '', children: [] }]
+        let i = 1
+        for (let header of uniqueHeaders) {
+          var parts = header.split('.')
+          let leaf = tree[0].children
+          let partIndex = 1
+          for (let part of parts) {
+            let index = leaf.findIndex((x) => x.name === part)
+            if (index === -1) {
+              let fullname = parts.slice(0, partIndex).join('.')
+              leaf.push({ id: i, name: part, fullname: fullname, children: [] })
+              index = leaf.length - 1
+              i++
+            }
+            partIndex++
+            leaf = leaf[index].children
+          }
+        }
+        return tree
       },
 
       objectsQuery( streamId, objectId) {
@@ -127,6 +161,14 @@
       }
 
 
+    },
+    computed: {
+      showHeaders () {
+        var headersToRemove = []
+        this.filteredHeaders.forEach(o => headersToRemove.push(o.fullname))
+        var shownHeaders = this.headers.filter(s => !headersToRemove.includes(s.text));
+        return shownHeaders;
+      }
     }
   }
 </script>
