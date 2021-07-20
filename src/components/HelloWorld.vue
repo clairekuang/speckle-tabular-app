@@ -36,14 +36,12 @@
           <v-card-text>
             <v-treeview
               selectable
-              :search="search"
               return-object
               v-model="filteredHeaders"
               :items="unflattenedHeaders"
             ></v-treeview>
           </v-card-text>
         </v-card>
-
         
       </v-col>
       <v-col>
