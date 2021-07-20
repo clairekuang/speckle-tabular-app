@@ -18,23 +18,46 @@
         </template>
       </v-text-field>
     </v-row>
+    <v-row>
+      <v-col>
+        <v-card
+          max-width="300px"
+        >
+          <v-sheet class="pa-4 blue">
+            <v-text-field
+              v-model="search"
+              label="Search Properties"
+              dark
+              flat
+              solo-inverted
+              hide-details
+            ></v-text-field>
+          </v-sheet>
+          <v-card-text>
+            <v-treeview
+              selectable
+              :search="search"
+              return-object
+              v-model="filteredHeaders"
+              :items="unflattenedHeaders"
+            ></v-treeview>
+          </v-card-text>
+        </v-card>
 
-    <v-treeview
-      selectable
-      return-object
-      v-model="filteredHeaders"
-      :items="unflattenedHeaders"
-    ></v-treeview>
-
-    <v-data-table
-      v-if="URL && URL.length !== 0"
-      :headers="showHeaders"
-      :items="flattenedObjects"
-      :hide-default-footer="true"
-      disable-sort
-      class="elevation-1 mt-12">
-    </v-data-table>
-     
+        
+      </v-col>
+      <v-col>
+        <v-data-table
+          v-if="URL && URL.length !== 0"
+          dense
+          :headers="showHeaders"
+          :items="flattenedObjects"
+          :hide-default-footer="true"
+          disable-sort
+          class="elevation-1 mt-12">
+        </v-data-table>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
